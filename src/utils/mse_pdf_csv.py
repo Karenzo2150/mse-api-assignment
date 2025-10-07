@@ -586,7 +586,7 @@ def merge_csv_into_master(data_dir: Path, master_csv: Path, cols: List[str]):
     master_df.to_csv(master_csv, index=False)
     print(f"✅ Master CSV created at {master_csv} with {len(master_df)} unique records")
 
-def main(process_latest=True, start_date_str="2025-09-08"):
+def main(process_latest=True, start_date_str="2021-01-01"):
     """
     Main function to extract MSE data from PDF and save to CSV
     """
