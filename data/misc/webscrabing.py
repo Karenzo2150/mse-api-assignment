@@ -30,7 +30,7 @@ from urllib.parse import urljoin
 # SETTINGS
 # ----------------------------
 BASE_URL = "https://mse.co.mw/market/reports"   # ← replace with real page
-DOWNLOAD_DIR = "D:\Documents\AIMS_DSCBI_Training\mse-api-assignment\data\misc\downloads"               # local folder name
+DOWNLOAD_DIR = "mse_reports"               # local folder name
 FILE_TYPES = [".pdf"]   # which files to download
 
 # ----------------------------
@@ -49,25 +49,33 @@ response.raise_for_status()
 # PARSE HTML
 # ----------------------------
 soup = BeautifulSoup(response.text, "html.parser")
-links = soup.find_all("a")
 
-# ----------------------------
-# LOOP THROUGH LINKS
-# ----------------------------
-for link in links:
-    href = link.get("href")
-    if href and any(href.endswith(ext) for ext in FILE_TYPES):
-        file_url = urljoin(BASE_URL, href)
-        file_name = os.path.basename(file_url)
-        file_path = os.path.join(DOWNLOAD_DIR, file_name)
 
-        print(f"📥 Downloading: {file_name} ...")
+# Find all PDF links
+pdf_links = []
+for link in soup.find_all("a", href=True):
+    href = link["href"]
+    if href.lower().endswith(".pdf"):
+        full_url = urljoin(BASE_URL, href)
+        pdf_links.append(full_url)
 
-        # Download file
-        with requests.get(file_url, stream=True) as r:
-            r.raise_for_status()
-            with open(file_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
+# Download PDFs
+if not pdf_links:
+    print("⚠️ No PDF links found. Check if the page structure has changed.")
+else:
+    print(f"Found {len(pdf_links)} PDF files. Starting download...\n")
 
-print("\n✅ All files downloaded successfully!")
+for i, pdf_url in enumerate(pdf_links, start=1):
+    file_name = os.path.basename(pdf_url.split("?")[0])  # remove query params
+    file_path = os.path.join(DOWNLOAD_DIR, file_name)
+
+    print(f"📥 ({i}/{len(pdf_links)}) Downloading: {file_name} ...")
+    r = requests.get(pdf_url, stream=True)
+    r.raise_for_status()
+
+    with open(file_path, "wb") as f:
+        for chunk in r.iter_content(8192):
+            f.write(chunk)
+
+print("\n✅ All MSE daily reports downloaded successfully!")
+print(f"Saved in: {os.path.abspath(DOWNLOAD_DIR)}")

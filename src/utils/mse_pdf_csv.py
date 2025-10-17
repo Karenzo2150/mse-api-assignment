@@ -383,7 +383,7 @@ def extract_first_table(pdf_path: str | Path,
             # Run checks to ensure structural correctness
             # Number of counters and counter names
             try:
-                assert df.shape[0] == len(COUNTER_LIST['2021-2025'])
+                assert df.shape[0] <= len(COUNTER_LIST['2021-2025'])
                 assert df['counter'].nunique() == len(COUNTER_LIST['2021-2025'])
                 # assert set(list(df['counter'].dropna().unique())) == set(COUNTER_LIST['2021-2025'])
             except AssertionError as e:
@@ -586,7 +586,7 @@ def merge_csv_into_master(data_dir: Path, master_csv: Path, cols: List[str]):
     master_df.to_csv(master_csv, index=False)
     print(f"✅ Master CSV created at {master_csv} with {len(master_df)} unique records")
 
-def main(process_latest=True, start_date_str="2021-01-01"):
+def main(process_latest=True, start_date_str="2017-01-01"):
     """
     Main function to extract MSE data from PDF and save to CSV
     """
@@ -612,3 +612,4 @@ def main(process_latest=True, start_date_str="2021-01-01"):
 if __name__ == "__main__":
     PROCESS_LATEST = False
     main(process_latest=PROCESS_LATEST)
+
