@@ -1,0 +1,14 @@
+fastapi 
+uvicorn 
+pandas 
+numpy 
+psycopg2-binary 
+python-dotenv 
+pathlib
+typing
+sqlalchemy
+dotenv
+tabula-py
+camelot
+logging
+datetime
