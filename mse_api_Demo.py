@@ -49,27 +49,27 @@ sector_map = {
 #First end-point: with Query parameters
 @app.get("/companies")
 def get_companies(sector: Optional[str] = Query(None, description="Filter companies by sector")):
-    df=pd.read_sql("SELECT * FROM counters", con=engine)
-    df['Sector'] = df['ticker'].map(sector_map)
-    df=df[['ticker','name','Sector','date_listed']]
+    df = pd.read_sql("SELECT * FROM tickers", con=engine)
+    df['sector'] = df['ticker'].map(sector_map)
+    df = df[['ticker','name','sector','date_listed']]
     if sector:
-        df=df[df['Sector']==sector]
-    data=df.to_dict(orient='records')
+        df = df[df['sector']==sector]
+    data = df.to_dict(orient='records')
     return {'count':len(data), 'data':data}
 
 #Second end-point - with Path parameters
-@app.get("/companies/{ticker}")
+@app.get("/companies1/{ticker}")
 def get_company_details(ticker:str):
     #counter details
-    df1=pd.read_sql("SELECT * FROM counters", con=engine)
-    df1['Sector'] = df1['ticker'].map(sector_map)
+    df1=pd.read_sql("SELECT * FROM tickers", con=engine)
+    df1['sector'] = df1['ticker'].map(sector_map)
     df1=df1[df1['ticker']==ticker]
     id=df1['counter_id'].values[0]
-    df1=df1[['ticker','name','Sector','date_listed']]
+    df1=df1[['ticker','name','sector','date_listed']]
     company_details=df1.to_dict(orient='records')
 
     #get counter records from daily prices
-    df2=pd.read_sql("SELECT * FROM prices", con=engine)
+    df2=pd.read_sql("SELECT * FROM daily_prices", con=engine)
     df2=df2[df2['counter_id']==id]
     records=len(df2)
     return {'Company details':company_details,'Total records':records}
@@ -83,12 +83,12 @@ def get_daily_prices(
     limit: Optional[int] = Query(100, description="Maximum records to return")
     ):
     #fetch counter name from counter table
-    df1=pd.read_sql("SELECT * FROM counters", con=engine)
-    df1=df1[df1['ticker']==ticker]
-    id=df1['counter_id'].values[0]
+    df1 = pd.read_sql("SELECT * FROM tickers", con=engine)
+    df1 = df1[df1['ticker']==ticker]
+    id = df1['counter_id'].values[0]
     
     #filter ticker using counter id
-    df=pd.read_sql("SELECT * FROM prices", con=engine)
+    df = pd.read_sql("SELECT * FROM daily_prices", con=engine)
     df = df[df['counter_id'] == id]
 
     df=df[['open_mwk','high_mwk','low_mwk','close_mwk','volume','trade_date']]
@@ -115,12 +115,12 @@ def get_daily_prices(
     month: Optional[int] = Query(None, description="Month of the year"),
     ):
     #fetch counter name from counter table
-    df1=pd.read_sql("SELECT * FROM counters", con=engine)
-    df1=df1[df1['ticker']==ticker]
-    id=df1['counter_id'].values[0]
+    df1 = pd.read_sql("SELECT * FROM tickers", con=engine)
+    df1 = df1[df1['ticker']==ticker]
+    id = df1['counter_id'].values[0]
     
     #filter ticker using counter id
-    df=pd.read_sql("SELECT * FROM prices", con=engine)
+    df=pd.read_sql("SELECT * FROM daily_prices", con=engine)
     df = df[df['counter_id'] == id]
 
     df=df[['trade_date','open_mwk','high_mwk','low_mwk','close_mwk','volume']]
@@ -140,19 +140,19 @@ def get_recent_prices(
     ticker: Optional[str] = Query(None, description="Stock ticker symbol"),
     ):
      #fetch counter name from counter table
-    df1=pd.read_sql("SELECT * FROM counters", con=engine)
-    df1=df1[df1['ticker']==ticker]
-    id=df1['counter_id'].values[0]
+    df1 = pd.read_sql("SELECT * FROM tickers", con=engine)
+    df1 = df1[df1['ticker']==ticker]
+    id = df1['counter_id'].values[0]
     
     #filter ticker using counter id
-    df=pd.read_sql("SELECT * FROM prices", con=engine)
+    df=pd.read_sql("SELECT * FROM daily_prices", con=engine)
     df = df[df['counter_id'] == id]
 
-    df=df[['trade_date','open_mwk','high_mwk','low_mwk','close_mwk','volume']]
-    df.columns=['trade_date','open',' high','low','close','Total Volume']
+    df = df[['trade_date','open_mwk','high_mwk','low_mwk','close_mwk','volume']]
+    df.columns = ['trade_date','open',' high','low','close','Total Volume']
 
     df['trade_date'] = pd.to_datetime(df['trade_date'])
-    df_prices = df.sort_values(by='trade_date', ascending=False).reset_index(drop=True)
+    df_prices = df.sort_values(by ='trade_date', ascending = False).reset_index(drop=True)
 
     # Latest price
     latest = df_prices.iloc[0]
