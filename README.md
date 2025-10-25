@@ -1,3 +1,8 @@
+# Project assignment created and submitted by Evariste Manirumva from MINECOFIN
+**Email: evariste.manirumva@aims.gov.rw
+
+
+
 # Malawi Stock Exchange API Assignment
 
 ## Overview
